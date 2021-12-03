@@ -1,132 +1,132 @@
-import keras
-import tensorflow as tf
-from tensorflow.keras.applications import VGG16
-from tensorflow.keras.preprocessing.image import ImageDataGenerate
-from tensorflow.keras.layers import Conv2, Input, Maxpool2D, Dropout, BatchNormalization, Dence, Flatten
+import keras 
+import tensorflow as tf 
+import tensorflow.keras.applications 
+import VGG16 
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, BatchNormalization, Dense, Flatten, Activation
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.regularizers import 12
 from tensorflow.keras.optimizers import Adam
+import pandas as pd
+import numpy as np
+import pydot_ng
+import graphviz
 import os
 
-num_classes = 4
-
-Img_height = 200
-Img_width = 200
-
-batch_size = 128
-
-train_dir = 'train1'
-validation_dir = 'validation1'
-
-train_datagen = ImageDataGenerator(rescale = 1./255, rotation_range = 30, shear_range = 0.3, zoom_range = 0.3, width_shift_range = 0.4, heigh_shift_range = 0.4, horizontal_flip = True, fill_mode = 'nearest')
-validation_datagen = ImageDataGenerator(rescale = 1./255)
-
-train_generator = train_datagen.flow_from_directory(train_dir, target_size = (Img_heigh, Img_width), batch_size = batch_size, class_mode = 'categorical', shuffle = True)
-validation_generator = validation_datagen.flow_from_directory(train_dir, target_size = (Img_heigh, Img_width), batch_size = batch_size, class_mode = 'categorical', shuffle = True)
-
-VGG16_MODEL = VGG16(input_shape=(Img_heigh, Img_width, 3), include_top = False, weight = 'imagenet')
-for layers in VGG16_MODEL.layers:
-    layers.trainable = False
-for layers in VGG16_MODEL.layers:
-    print(layers.trainable)
-
-input_layers = VGG16_MODEL.output
-#Convolutional Layer
-Conv1 = Conv2D(filters = 32, kernel_size = (3,3), strides = (1,1), padding = 'valid', data_format = 'channels_last', activation = 'relu',
-kernal_initializiar = keras.initializiar.he_normal(seed = 0 ),
- name = 'Conv1')(input_layer)
-#Maxpool Layer 
-Pool1 = MaxPool2D(pool_size = (2,2), strides = (2,2), padding = 'valid', data_format = 'channels_last', name = 'Pool1')(Conv1)
-#Flatten 
-flatten = Flatten(data_format = 'channels_last', name = 'Flatten')(Pool1)
-#Fully connected layer 2
-FC1 = Dence(units30, activation = ' rule', kernal_initializerv = keras.initializers.glorot_normal(seed = 33), name = 'FC2')(FC1)
-#Output layer
-Out = Dence(units = num_classes, activation = 'softmax', kernel_initializer = keras.initializer.glorot_normal(seed = 3), name = 'Output')(FC2)
-
-model1 = Model(input = VGG16_MODEL.input, outputs = Out)
-
-train_samples = 9600
-validation_samples = 2400
-epochs = 50
-batch_size = 128
-model1_compile(loss = 'categorical_crossentropy', optimizer = Adam(lr=0.001), metrics = ['accuracy'])
-model1.fit(train_generator, steps_per_epoch = train_samples//batch_size, epoch = epoch, callbacks = [checkpoint, reduce, tensorboard_Visualization], validation_data = validation_generator, validation_steps = validation_samples//batch_size)
 num_classes = 7
 batch_size = 64
 epochs = 100
-Img_heigh = 48
+Img_height  = 48
 Img_width = 48
+
+data = pd.read_csv('fer2013.csv')
+data.head()
 
 pixels = data['pixels'].tolist()
 faces = []
 
 for pixel_sequence in pixels:
-    face = [int(pixel) for pixel in pixel_sequence.splt(' ')]
-    face = np.asarray(face).reshape(Img_heigh, Img_width)
+    face = [int(pixel) for pixel in pixel_sequence.split(' ')]
+    face = np.asarray(face).reshape(Img_height, Img_width)
     faces.append(face.astype('float32'))
 
 faces = np.asarray(faces)
 faces = np.expand_dims(faces, -1)
 
-emotion = pd.get_dummies(data['emotion']).values
-
+emotions = pd.get_dummies(data['emotion']).values
+#Spitting of Data
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(faces, emotion, test_size = 0.1, randome_state = 42)
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size = 0.1, randome_state = 41)
+X_train, X_test,y_train, y_test = train_test_split(faces, emotions, test_size = 0.1, random_state = 42)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size = 0.1, random_state = 41)
 
 model = Sequential()
-#Block-1, The 1st Convolutional Block
 
-model.add(Conv2D(filters = 32, kernel_size = (3,3), padding = 'same', kernel_initializer = 'he_normal',activation = "relu",
+# BLOCK-1: The 1st Convolutional Block
+
+model.add(Conv2D(filters = 32, kernel_size=(3 , 3), padding = 'same', kernel_initializer = 'he_normal',
+activation = "rule",
 inpute_shape = (Img_height, Img_width, 1),
 name = "Conv1"))
 
 model.add(BatchNormalization(name = "Bath_Norm1"))
 
-model.add(Conv2D(filters = 32, kernel_size(3,3), padding = 'same', kernel_initializer = 'he normal',
-activation = "relu", name = "Conv2"))
+model.add(Conv2D(filters = 32, kernel_size=(3,3), padding = 'same', kernel_initializer = 'he normal',
+activation = "rule", name = "Conv2D"))
 
 model.add(BatchNormalization(name = "Bath_Norm2"))
 model.add(MaxPooling2D(pool_size = (2,2), name = "MaxPool1"))
-model.add(Dropout(0.5, name = Dropout1))
+model.add(Dropout(0.5, name = "Dropout1"))
 
 # Block-2:The Convolutional Block
 
-model.add(Conv2D(filters = 64, kernel_size(3,3), padding = 'same', kernel_initializer = 'he normal',
-activation = "relu", name = "Conv3"))
+model.add(Conv2D(filters = 64, kernel_siz=(3,3), padding = 'same', kernel_initializer = 'he normal',
+activation = "rule", name = "Conv3D"))
 
 model.add(BatchNormalization(name = "Bath_Norm3"))
 
-model.add(Conv2D(filters = 64, kernel_size(3,3), padding = 'same', kernel_initializer = 'he normal',
-activation = "relu", name = "Conv4"))
+model.add(Conv2D(filters = 64, kernel_size=(3,3), padding = 'same', kernel_initializer = 'he normal',
+activation = "rule", name = "Conv4D"))
 
 model.add(BatchNormalization(name = "Bath_Norm4"))
-model.add(MaxPooling2D(pool_size = 2,2), name = "Maxpool2"))
+model.add(MaxPooling2D(pool_size = (2,2), name = "Maxpool2"))
 model.add(Dropout(0.5, name = "Dropout2"))
 
 # Block-3: The Convolutional Block
 
-model.add(Conv2D(filters = 128, kernel_size(3,3), padding = 'same', kernel_initializer = 'he normal',
-activation = "relu", name = "Conv5"))
+model.add(Conv2D(filters = 128, kernel_size=(3,3), padding = 'same', kernel_initializer = 'he normal',
+activation = "rule", name = "Conv4D"))
 
 model.add(BatchNormalization(name = "Bath_Norm5"))
 
-model.add(Conv2D(filters = 128, kernel_size(3,3), padding = 'same', kernel_initializer = "he normal",
-activation = "relu", name = "Conv6"))
+model.add(Conv2D(filters = 128, kernel_size=(3,3), padding = 'same', kernel_initializer = "he normal",
+activation = "rule", name = "Conv6D"))
 
-model.add(BatchNormalization(name = Bath_6))
-model.add(MaxPooling2D(pool_size = 2,2), name = "Maxpool3"))
+model.add(BatchNormalization(name = "Batch_Norm6"))
+model.add(MaxPooling2D(pool_size = (2,2), name = "Maxpool3"))
 model.add(Dropout(0.5, name = "Dropout3"))
 
 # Block-4: The Connected BLOCK
 
 model.app(Flatten(name = "Flatten"))
-model.app(Dence(64, activation = "elu", kernel_initializer = "he normal", name = "Dence"))
+model.app(Dense(64, activation = "rule", kernel_initializer = "he normal", name = "Dense"))
 model.app(BatchNormalization(name = "Bath_Norm7"))
 model.app(Dropout(0.5, name = "Dropout4"))
 
 # Block-5: The Output Block
 
 model.add(Dense(num_classes, activation = "softmax", kernel_initializer = "he_normal", name = "Output"))
-))
+
+#Model plot
+
+from tensorflow import keras
+from keras.utils.vis_utils import plot_model
+from keras.utils import np_utils
+
+keras.utils.plot_model(model, to_file = 'model3.png', show_layer_names = True)
+
+#Compile the Model
+model.compile(loss = "categorical_crossentropy",
+optimizer = Adam(lr = 0.001, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-7), metrics = ['accuracy'])
+
+#Callbacks4
+from tensorflow.keras.callbacks import ModelCheckPoint
+from tensorflow.keras.callbacks import ReduceLROnPlateau
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import EarlyStopping
+
+tensorboard = TensorBoard(log_dir = 'logs3')
+lr_reducer = ReduceLROnPlateau(monitor = 'val_accuracy', factor = 0.9, patience = 3, verbose = 1)
+early_stopper = EarlyStopping(monitor = 'val_accuracy', min_delta = 0, patience = 8, verbose = 1, mode = 'auto')
+checkpointer = ModelCheckPoint("emotions3.h5", monitor = 'var_accuracy', verbose = 1, save_best_only = True )
+
+#Fit the Model
+model.fit(np.array(X_train), np.array(y_train),
+          batch_size = batch_size,
+          epochs = epochs,
+          verbose = 1,
+          validation_data = (np.array(X_test), np.array(y_test)),
+          shuffle = True,
+          callbacks = [lr_reducer, tensorboard, early_stopper, checkpointer])
+
+from IPython.display import Image
+pil_img = Image(filename = 'finalGraph.png')
+display(pil_img)  
