@@ -7,7 +7,7 @@ import cv2
 from playsound import playsound
 import time
 
-emotion_model = load_model("emotion.h5")
+emotion_model = load_model("emotions.h5")
 gesture_model = load_model("gesture.h5")
 face_classifier = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
